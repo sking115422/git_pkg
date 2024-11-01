@@ -1,0 +1,13 @@
+node capture_screenshots.js https://facebook.com 123 10000 chrome_win SE
+
+node capture_screenshots.js http://127.0.0.1:60080 123 10000 chrome_win SE
+
+node capture_screenshots.js http://site1.sdktest.com 123 10000 chrome_win SE
+
+node capture_screenshots.js https://ww17.0123movie.net/movie/oppenheimer-1630855498.html 123 10000 chrome_win SE
+
+node capture_screenshots.js "https://getinfosecures.com/nt/limited/?s2=push_20241028012617_a59aae89_f9fc_4cd3_85ae_840a85ad2694&s5=2591196&s1=331&s3=331-559895&s8=2" 123 10000 chrome_win SE
+
+node capture_screenshots.js https://famously-dead.com 123 10000 chrome_win SE
+
+node capture_screenshots.js https://rfiy3mbm.top/ 123 10000 chrome_win SE

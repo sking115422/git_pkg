@@ -1,0 +1,22 @@
+# PP Crawler Container
+
+docker run -d -i -t \
+-v /mnt/c/Users/spenc/Desktop/pp_pkg:/mnt/pp_pkg \
+-p 62210:22 \
+-p 65000:5000 \
+--name pp_crawler_cont_1 \
+--hostname pp_crawler_cont_1 \
+--gpus all \
+--shm-size=32g \
+sking115422/pp_crawler_cont:v1 /bin/bash -c "sudo service ssh start && /bin/bash"
+
+# Containerized Browsing
+
+docker network create iso_nw
+
+docker run -d \
+    --network iso_nw \
+    --name iso_ff \
+    --hostname iso_ff \
+    -p 5800:5800 \
+    jlesage/firefox
