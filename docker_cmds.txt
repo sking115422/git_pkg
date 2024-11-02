@@ -1,13 +1,49 @@
-# PP Crawler Container
+# Create PP docker network
+
+docker network create pp_nw
+
+# PP API Container
 
 docker run -d -i -t \
--v /mnt/c/Users/spenc/Desktop/pp_pkg:/mnt/pp_pkg \
+-v /mnt/lts/nis_lab_research/pp_pkg:/mnt/pp_pkg \
 -p 62210:22 \
 -p 65000:5000 \
---name pp_crawler_cont_1 \
---hostname pp_crawler_cont_1 \
+--network pp_nw \
+--name pp_api_cont_2 \
+--hostname pp_api_cont_2 \
 --gpus all \
 --shm-size=32g \
+sking115422/pp_crawler_cont:v1 /bin/bash -c "sudo service ssh start && /bin/bash"
+
+# PP Crawler Container (No GUI)
+
+docker run -d -i -t \
+-v /mnt/lts/nis_lab_research/pp_pkg:/mnt/pp_pkg \
+-p 62221:22 \
+--network pp_nw \
+--name pp_crawler_cont_1 \
+--hostname pp_crawler_cont_1 \
+sking115422/pp_crawler_cont:v1 /bin/bash -c "sudo service ssh start && /bin/bash"
+
+docker run -d -i -t \
+-v /mnt/lts/nis_lab_research/pp_pkg:/mnt/pp_pkg \
+-p 62226:22 \
+--network pp_nw \
+--name pp_crawler_cont_6 \
+--hostname pp_crawler_cont_6 \
+sking115422/pp_crawler_cont:v1 /bin/bash -c "sudo service ssh start && /bin/bash"
+
+# PP Crawler Container (GUI)
+
+docker run -d -i -t \
+-e DISPLAY=$DISPLAY \
+-v /mnt/lts/nis_lab_research/pp_pkg:/mnt/pp_pkg \
+-v /tmp/.X11-unix:/tmp/.X11-unix \
+-p 62222:22 \
+--network pp_nw \
+--name pp_crawler_cont_2 \
+--hostname pp_crawler_cont_2 \
+--shm-size=4g \
 sking115422/pp_crawler_cont:v1 /bin/bash -c "sudo service ssh start && /bin/bash"
 
 # Containerized Browsing
@@ -20,3 +56,9 @@ docker run -d \
     --hostname iso_ff \
     -p 5800:5800 \
     jlesage/firefox
+
+# Docker Crawling Run Commands
+
+docker exec pp_crawler_cont_2 bash -c "/home/user/miniconda3/condabin/conda activate pp_api_venv && python crawl_url_list.py /mnt/pp_pkg/data/seed_urls/test1.csv chrome_win test4"
+
+docker exec pp_crawler_cont_2 /home/user/miniconda3/condabin/conda run -n pp_api_env python /mnt/pp_pkg/pp_crawler/crawl_url_list.py /mnt/pp_pkg/data/seed_urls/test1.csv chrome_win test4

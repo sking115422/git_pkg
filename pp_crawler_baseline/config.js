@@ -20,6 +20,8 @@ if (process.argv[2]) {
      crawler_mode=process.argv[6];
   }
 
+  var log_dir_name = process.argv[7];
+
   }
 
 
@@ -39,19 +41,19 @@ const starting_date_unix=new Date().getTime()
 // new Date().getTime()
 const starting_date = utils.toISOLocal(starting_date_object)
 
-var MAIN_LOGS_DIR="logs/"+starting_date_unix+"_"+version_number+"_siteID:"+id
+var MAIN_LOGS_DIR="logs/"+log_dir_name+"/"+starting_date_unix+"_"+version_number+"_siteID:"+id
 // var MAIN_LOGS_DIR=starting_date_unix+"_site"+id
 
-var home_dir= "/mnt/c/Users/spenc/Desktop/VisualSE_Detection_Crawler/"
+var home_dir= "./"
 
 
 
-if (process.env.SE_CRAWLER_ENV =='DOCKER'){
+// if (process.env.SE_CRAWLER_ENV =='DOCKER'){
 
-  MAIN_LOGS_DIR="../logs/"+starting_date_unix+"_"+version_number+"_siteID:"+id
-  // MAIN_LOGS_DIR="../"+starting_date_unix+"_site"+id
-  home_dir= "/home/pptruser/"
-}
+//   MAIN_LOGS_DIR="../logs/"+starting_date_unix+"_"+version_number+"_siteID:"+id
+//   // MAIN_LOGS_DIR="../"+starting_date_unix+"_site"+id
+//   home_dir= "/home/pptruser/"
+// }
 
 
 var tab_loc_landing="landing"

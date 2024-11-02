@@ -11,7 +11,7 @@ async function sendInferenceRequest(screenshotBuffer, url) {
     formData.append('url', url);
 
     try {
-        const response = await fetch('http://localhost:65000/infer', {
+        const response = await fetch('http://pp_api_cont_2:5000/infer', {
             method: 'POST',
             body: formData
         });
@@ -32,7 +32,10 @@ async function sendInferenceRequest(screenshotBuffer, url) {
 
 // Function to capture screenshot and send inference request
 async function processDomain(url) {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],  // Disable sandboxing options here
+    });
     const page = await browser.newPage();
     
     // Set the viewport to 1920x1080

@@ -25,6 +25,7 @@
     "puppeteer-extra-plugin-user-preferences": "^2.3.1",
     "simple-node-logger": "^21.8.12",
     "tld-extract": "^2.0.1",
+    "xvfb": "^0.4.0",
     "zip-local": "^0.3.4"
   },
   "devDependencies": {

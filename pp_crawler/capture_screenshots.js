@@ -25,6 +25,61 @@ puppeteer.use(
   })
 )
 
+var rand_viewports = config.USER_AGENTS[config.agent_name]["window_size_cmd"]
+var width = rand_viewports.slice(-1)[0][0]
+var height = rand_viewports.slice(-1)[0][1]
+var default_ss_size = `(${width},${height})`
+var headless_flag = config.headless_flag
+
+const args = [
+  // '--headless',
+  '--hide-scrollbars',
+  '--mute-audio',
+  // '--dns-log-details',
+  // '--net-log-capture-mode=Everything',
+  // `--log-net-log=${netlogfile}`,
+  // '--single-process',
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-infobars',
+  // '--window-position=0,0',
+  '--ignore-certificate-errors',
+  // `--ignore-certificate-errors-spki-list=${path.resolve('/home/irfan/.mitmproxy/mitmproxy-ca.pem')}`,
+  // '--ignore-certificate-errors-spki-list',
+  "--disable-web-security",
+  "--allow-running-insecure-content",
+  "--disable-features=IsolateOrigins",
+  "--disable-site-isolation-trials",
+  "--allow-popups-during-page-unload",
+  "--disable-popup-blocking",
+  // '--disable-dev-shm-usage',
+  // '--enable-blink-features=HTMLImports',
+  '--disable-gpu',
+  `--window-size=${width},${height}`,
+  `--user-agent=${config.USER_AGENTS[config.agent_name]["user_agent"]}`,
+  `--use-mobile-user-agent=${config.USER_AGENTS[config.agent_name]["mobile"]}`,
+  '--shm-size=3gb',
+  `--user-data-dir=${config.home_dir}chrome_user/`,
+  // '--display=:99'
+  //  `--user-data-dir=`,
+  // '--proxy-server=localhost:8089'
+  // `--proxy-server=localhost:${server.port}`
+];
+config.logger_coor.info(`\nResolution used to calculate:${width}x${height}\n`)
+
+const browser_options = {
+  // headless: headless_flag,
+  headless: false,
+  args,
+  ignoreHTTPSErrors: true,
+  defaultViewport: {
+    width: width,
+    height: height,
+    deviceScaleFactor: config.USER_AGENTS[config.agent_name]["device_scale_factor"],
+    devtools: true,
+  },
+};
+
 const downloadPath = path.resolve(config.DOWNLOADS_DIR);
 
 function sleep(ms) {
@@ -194,7 +249,9 @@ function sortDetectedElements(inf_resp) {
 }
 
 // Function to capture screenshot and send inference request
-async function processDomain(url, browser_options) {
+async function processDomain(url) {
+
+  // console.log(browser_options)
 
   let browser;
   let inf_resp;
@@ -217,12 +274,12 @@ async function processDomain(url, browser_options) {
       waitUntil: 'networkidle2'  // Ensures the page is fully loaded
     });
 
-    await sleep(5000)
+    // await sleep(1000)
 
     console.log('Page loaded, taking screenshot...');
 
     // Take a screenshot
-    const screenshotBuffer = await page.screenshot({path: './logs/images/ss1.png'});
+    const screenshotBuffer = await page.screenshot();
 
     console.log('Screenshot taken, sending inference request...');
 
@@ -230,7 +287,7 @@ async function processDomain(url, browser_options) {
     inf_resp = await sendInferenceRequest(screenshotBuffer, url);
     sorted_inf_resp = sortDetectedElements(inf_resp);
 
-    const jsonDir = './json_log';
+    const jsonDir = config.JSON_ELEM_ORDER_LOGS;
     if (!fs.existsSync(jsonDir)) {
       fs.mkdirSync(jsonDir);
     }
@@ -268,7 +325,7 @@ async function sendInferenceRequest(screenshotBuffer, url) {
   formData.append('url', url);
 
   try {
-    const response = await fetch('http://localhost:65000/infer', {
+    const response = await fetch('http://pp_api_cont_2:5000/infer', {
       method: 'POST',
       body: formData
     });
@@ -291,14 +348,7 @@ async function load_page() {
 
   var CSV_results = await utils.CSVGetData() //load popularity ranking to the memory
   config.log.info("Starting date is:" + config.starting_date)
-
-  var rand_viewports = config.USER_AGENTS[config.agent_name]["window_size_cmd"]
-
-  var width = rand_viewports.slice(-1)[0][0]
-  var height = rand_viewports.slice(-1)[0][1]
   config.log.info("The initial widthxheight is:" + width + "x" + height)
-
-  var default_ss_size = `(${width},${height})`
 
   function getRanking(url_s) {
     var url_s = utils.canonical_url(url_s)
@@ -317,53 +367,6 @@ async function load_page() {
   var count = 0
 
   var netlogfile = path.resolve(config.NET_LOG_DIR + config.starting_date_unix + "_siteID:" + config.id) + '.json'
-
-  const args = [
-    // '--headless',
-    '--hide-scrollbars',
-    '--mute-audio',
-    // '--dns-log-details',
-    // '--net-log-capture-mode=Everything',
-    // `--log-net-log=${netlogfile}`,
-    // '--single-process',
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-infobars',
-    // '--window-position=0,0',
-    '--ignore-certificate-errors',
-    // `--ignore-certificate-errors-spki-list=${path.resolve('/home/irfan/.mitmproxy/mitmproxy-ca.pem')}`,
-    // '--ignore-certificate-errors-spki-list',
-    "--disable-web-security",
-    "--allow-running-insecure-content",
-    "--disable-features=IsolateOrigins",
-    "--disable-site-isolation-trials",
-    "--allow-popups-during-page-unload",
-    "--disable-popup-blocking",
-    // '--disable-dev-shm-usage',
-    // '--enable-blink-features=HTMLImports',
-    '--disable-gpu',
-    `--window-size=${width},${height}`,
-    `--user-agent=${config.USER_AGENTS[config.agent_name]["user_agent"]}`,
-    `--use-mobile-user-agent=${config.USER_AGENTS[config.agent_name]["mobile"]}`,
-    '--shm-size=3gb',
-    `--user-data-dir=${config.home_dir}chrome_user/`,
-    //  `--user-data-dir=`,
-    // '--proxy-server=localhost:8089'
-    // `--proxy-server=localhost:${server.port}`
-  ];
-  config.logger_coor.info(`\nResolution used to calculate:${width}x${height}\n`)
-
-  const browser_options = {
-    headless: false,
-    args,
-    ignoreHTTPSErrors: true,
-    defaultViewport: {
-      width: width,
-      height: height,
-      deviceScaleFactor: config.USER_AGENTS[config.agent_name]["device_scale_factor"],
-      devtools: true,
-    },
-  };
   
   await puppeteer.launch(browser_options).then(async browser => {
 
@@ -448,7 +451,7 @@ async function load_page() {
 
       // ### Calling model API 1
 
-      let raw_elem_json = await processDomain(url_next, browser_options)
+      let raw_elem_json = await processDomain(url_next)
       let { elem_ctr_points, all_elems } = parseJsonToTabs(raw_elem_json)
 
       var c = ((elem_ctr_points.length > 5) ? 5 : elem_ctr_points.length);
@@ -1333,28 +1336,28 @@ async function load_page() {
 
           // ### Code to show where on page is clicked
 
-          await page.evaluate((xCoord, yCoord) => {
-            const dot = document.createElement('div')
-            dot.style.position = 'absolute'
-            dot.style.left = `${xCoord + window.scrollX - 5}px`
-            dot.style.top = `${yCoord + window.scrollY - 5}px`
-            dot.style.width = '20px' // Larger size
-            dot.style.height = '20px'
-            dot.style.backgroundColor = 'red' // Brighter color
-            dot.style.border = '3px solid yellow' // Adding a border
-            dot.style.borderRadius = '50%'
-            dot.style.zIndex = '999999' // Ensure it is the top-most element
-            dot.style.boxShadow = '0 0 10px 5px rgba(255, 0, 0, 0.5)'; // Glowing shadow
-            dot.style.pointerEvents = 'none' // Allow interaction with underlying elements
-            dot.style.animation = 'pulse 0.25s infinite' // Pulsing animation
+          // await page.evaluate((xCoord, yCoord) => {
+          //   const dot = document.createElement('div')
+          //   dot.style.position = 'absolute'
+          //   dot.style.left = `${xCoord + window.scrollX - 5}px`
+          //   dot.style.top = `${yCoord + window.scrollY - 5}px`
+          //   dot.style.width = '20px' // Larger size
+          //   dot.style.height = '20px'
+          //   dot.style.backgroundColor = 'red' // Brighter color
+          //   dot.style.border = '3px solid yellow' // Adding a border
+          //   dot.style.borderRadius = '50%'
+          //   dot.style.zIndex = '999999' // Ensure it is the top-most element
+          //   dot.style.boxShadow = '0 0 10px 5px rgba(255, 0, 0, 0.5)'; // Glowing shadow
+          //   dot.style.pointerEvents = 'none' // Allow interaction with underlying elements
+          //   dot.style.animation = 'pulse 0.25s infinite' // Pulsing animation
 
-            document.body.appendChild(dot) // Ensure it's the last element
-            setTimeout(() => {
-              dot.remove()
-            }, 3000) // Removes the dot after 3 seconds
-          }, xCoord, yCoord)
+          //   document.body.appendChild(dot) // Ensure it's the last element
+          //   setTimeout(() => {
+          //     dot.remove()
+          //   }, 3000) // Removes the dot after 3 seconds
+          // }, xCoord, yCoord)
 
-          await page.waitForTimeout(3000)
+          // await page.waitForTimeout(3000)
 
           if (is_mobile) {
             await page.touchscreen.tap(xCoord, yCoord);
@@ -1760,8 +1763,7 @@ async function crawl_url() {
 
   try {
     config.log.info('crawling started :: ' + config.id)
-    await load_page()
-
+    await load_page();
   }
 
   catch (error) {

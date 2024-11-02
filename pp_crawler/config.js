@@ -20,6 +20,8 @@ if (process.argv[2]) {
      crawler_mode=process.argv[6];
   }
 
+  var log_dir_name = process.argv[7];
+
   }
 
 
@@ -39,19 +41,21 @@ const starting_date_unix=new Date().getTime()
 // new Date().getTime()
 const starting_date = utils.toISOLocal(starting_date_object)
 
-var MAIN_LOGS_DIR="logs/"+starting_date_unix+"_"+version_number+"_siteID:"+id
+var MAIN_LOGS_DIR= "logs/"+log_dir_name+"/"+starting_date_unix+"_"+version_number+"_siteID:"+id
 // var MAIN_LOGS_DIR=starting_date_unix+"_site"+id
 
-var home_dir= "/mnt/c/Users/spenc/Desktop/VisualSE_Detection_Crawler/"
+var home_dir= "./"
+
+const headless_flag = false;
 
 
 
-if (process.env.SE_CRAWLER_ENV =='DOCKER'){
+// if (process.env.SE_CRAWLER_ENV =='DOCKER'){
 
-  MAIN_LOGS_DIR="../logs/"+starting_date_unix+"_"+version_number+"_siteID:"+id
-  // MAIN_LOGS_DIR="../"+starting_date_unix+"_site"+id
-  home_dir= "/home/pptruser/"
-}
+//   MAIN_LOGS_DIR="../logs/"+starting_date_unix+"_"+version_number+"_siteID:"+id
+//   // MAIN_LOGS_DIR="../"+starting_date_unix+"_site"+id
+//   home_dir= "/home/pptruser/"
+// }
 
 
 var tab_loc_landing="landing"
@@ -74,6 +78,7 @@ const CHROME_LOGS_DIR =MAIN_LOGS_DIR+"/chrome_logs/"
 const ELEMENTS_COOR_DIR =MAIN_LOGS_DIR+"/element_coor/"
 const NET_LOG_DIR=MAIN_LOGS_DIR+"/net_log/"
 const JSON_LOGS=MAIN_LOGS_DIR+"/JSON_log/"
+const JSON_ELEM_ORDER_LOGS=MAIN_LOGS_DIR+"/JSON_elem_order_log/"
 
 const VISITED_URLS_LOG=MAIN_LOGS_DIR+"/"
 
@@ -449,6 +454,7 @@ module.exports.json_file = json_file;
 module.exports.json_file_visited_urls = json_file_visited_urls;
 
 module.exports.JSON_LOGS = JSON_LOGS;
+module.exports.JSON_ELEM_ORDER_LOGS = JSON_ELEM_ORDER_LOGS;
 module.exports.the_tab_interval = the_tab_interval;
 module.exports.the_tab_interval2 = the_tab_interval2;
 module.exports.NET_LOG_DIR = NET_LOG_DIR;
@@ -480,3 +486,5 @@ module.exports.LOGS_DIR =LOGS_DIR
 // module.exports.TCPDUMP_DIR =TCPDUMP_DIR
 module.exports.USER_AGENTS=USER_AGENTS
 module.exports.starting_date_unix=starting_date_unix
+module.exports.log_dir_name=log_dir_name
+module.exports.headless_flag=headless_flag
